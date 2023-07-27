@@ -370,13 +370,29 @@ dd {
 }
 
 /*影响了密码区的位置*/
-.invoice-table-header-center1 {
-  width: 398px;
+.invoice-table-other-info1 {
+  width: 180px;
   /*border-right: 1px solid #902121;*/
   height: 120px;
   padding-left: 8px;
 }
 
+.invoice-table-other-info2 {
+  width: 180px;
+  /*border-right: 1px solid #902121;*/
+  height: 100%;
+}
+
+.invoice-table-other-info3 {
+  width: 180px;
+  /*border-right: 1px solid #902121;*/
+  height: 100%;
+}
+.invoice-table-other-info4 {
+  width: 180px;
+  /*border-right: 1px solid #902121;*/
+  height: 100%;
+}
 /*注释后密码区的内容消失*/
 .invoice-table-header-right {
   width: 252px;
