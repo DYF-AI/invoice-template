@@ -292,26 +292,28 @@ class Stamp:
 
 
 if __name__ == "__main__":
-    # words_up = "深圳市宝安区中医院"
-    # stamp = Stamp(
-    #     words_up=words_up,
-    #     words_mid="电子票据专用章",
-    #     save_path=f"{words_up}.png",
-    # )
-
-    words_up = "财政票据监制"
+    words_up = "深圳市宝安区中医院"
     stamp = Stamp(
         words_up=words_up,
-        words_mid="河北省",
-        words_down="财政部监制",
+        words_mid="电子票据专用章",
         save_path=f"{words_up}.png",
-        angle_up=160,
-        font_size_up=60,
-        font_size_mid=40,
-        font_size_down=40,
+        angle_up=200,
+        font_size_mid=50,
     )
+    stamp.draw_stamp()
 
-    #stamp.draw_stamp()
-    stamp.draw_title_stamp()
+    # words_up = "财政票据监制"
+    # stamp = Stamp(
+    #     words_up=words_up,
+    #     words_mid="河北省",
+    #     words_down="财政部监制",
+    #     save_path=f"{words_up}.png",
+    #     angle_up=160,
+    #     font_size_up=60,
+    #     font_size_mid=40,
+    #     font_size_down=40,
+    # )
+    # stamp.draw_title_stamp()
+
     stamp.show_stamp()
     stamp.save_stamp()
