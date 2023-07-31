@@ -43,13 +43,13 @@ class Stamp:
                         r = 90,                 # 五星外接圆半径
                         fill = (255, 0, 0, 120),# 印章颜色， 默认纯红色， 透明度0-255，建议90-180
 
-                        words_up = "测试专用章有限公司", # 上部文字
+                        words_up = "深圳人民医院", # 上部文字
                         angle_up = 270,         # 上部文字弧形角度
                         font_size_up = 80,      # 上部文字大小
                         font_xratio_up = 0.66,  # 上部文字横向变形比例
                         stroke_width_up = 2,    # 上部文字粗细，一般取值0,1,2,3
 
-                        words_mid="测试专用章",   # 中部文字
+                        words_mid="财务收费专用章",   # 中部文字
                         angle_mid = 72,         # 中部文字弧形角度
                         font_size_mid = 60,     # 中部文字大小
                         font_xratio_mid = 0.7,  # 中部文字横向变形比例
@@ -96,9 +96,6 @@ class Stamp:
         self.font_size_down = font_size_down   # 下部文字大小
         self.font_xratio_down = font_xratio_down  # 下部文字横向变形比例
         self.stroke_width_down = stroke_width_down   # 中部文字粗细，一般取值0,1,2,3
-
-
-
 
     def draw_rotated_text(self, image, angle, xy, r, word, fill, font_size, font_xratio, stroke_width, font_flip = False, *args, **kwargs):
         """
@@ -164,20 +161,79 @@ class Stamp:
         color_image = Image.new('RGBA', image.size, fill)
         image.paste(color_image, mask)
 
+    def draw_title_stamp(self):
+        # 创建一张底图,用来绘制文字
+        img = Image.new("RGBA", (2 * (self.R + self.edge), 2 * (self.R + self.edge)), (255, 255, 255, 0))
+        draw = ImageDraw.Draw(img)
+
+        # 绘制圆弧， R为外边缘，width往圆心算
+        draw.arc(circle(self.R + self.edge, self.R + self.edge, self.R), start=0, end=360, fill=self.fill,
+                 width=self.border)
+        # 绘制财务专用印章
+        draw.arc(circle(self.R + self.edge, self.R + self.edge, int(self.R*0.9)), start=0, end=360, fill=self.fill,
+                 width=int(self.border/2))
+
+        # # 绘制多边形
+        # draw.polygon(pentagram(self.R + self.edge, self.R + self.edge, self.r), fill=self.fill, outline=self.fill)
+
+        # 绘制上圈文字
+        angle_word = self.angle_up / len(self.words_up)
+        angle_word_curr = ((len(self.words_up) - 1) / 2) * angle_word
+
+        for word in self.words_up:
+            self.draw_rotated_text(img, angle_word_curr, (self.R + self.edge, self.R + self.edge),
+                                   self.R - self.border * 3,
+                                   word, self.fill, self.font_size_up, self.font_xratio_up, self.stroke_width_up)
+            angle_word_curr = angle_word_curr - angle_word
+
+        # 绘制中间文字
+        def draw_text(img, words_mid):
+            width, height = img.size
+            max_dim = max(width, height)
+            font = ImageFont.truetype("./fonts/simsun.ttc", self.font_size_mid, encoding="utf-8")
+            bd = draw.textbbox((max_dim, max_dim), self.words_mid, font=font, align="center")
+            font_width = bd[2] - bd[0]
+            font_hight = bd[3] - bd[1]
+            word_pos = (int(max_dim/2 - font_width/2), int(max_dim/2 - font_hight/2))
+            draw.text(word_pos, words_mid, self.fill, font=font, align="center", stroke_width=self.stroke_width_mid)
+
+        draw_text(img, self.words_mid)
+
+        #绘制下圈文字
+        angle_word = self.angle_down / len(self.words_down)
+        angle_word_curr = -((len(self.words_down)-1) / 2) * angle_word
+
+        for word in self.words_down:
+            self.draw_rotated_text(img, angle_word_curr, (self.R+self.edge,self.R+self.edge), self.R-self.border*4,
+                                   word, self.fill, self.font_size_down, self.font_xratio_down, self.stroke_width_down, font_flip = True)
+            angle_word_curr = angle_word_curr + angle_word
+
+        # 随机圈一部分纹理图
+        pos_random = (randint(0, 200), randint(0, 100))
+        box = (pos_random[0], pos_random[1], pos_random[0] + 300, pos_random[1] + 300)
+        img_wl_random = self.img_wl.crop(box).rotate(randint(0, 360))
+        # 重新设置im2的大小，并进行一次高斯模糊
+        img_wl_random = img_wl_random.resize(img.size).convert('L').filter(ImageFilter.GaussianBlur(1))
+        # 将纹理图的灰度映射到原图的透明度，由于纹理图片自带灰度，映射后会有透明效果，所以fill的透明度不能太低
+        L, H = img.size
+        for h in range(H):
+            for l in range(L):
+                dot = (l, h)
+                img.putpixel(dot,
+                             img.getpixel(dot)[:3] + (int(img_wl_random.getpixel(dot) / 255 * img.getpixel(dot)[3]),))
+        # 进行一次高斯模糊，提高真实度
+        self.img = img.filter(ImageFilter.GaussianBlur(0.6))
 
     def draw_stamp(self):
         #创建一张底图,用来绘制文字
         img = Image.new("RGBA",(2*(self.R+self.edge),2*(self.R+self.edge)),(255,255,255,0))
         draw = ImageDraw.Draw(img)
 
-
         #绘制圆弧， R为外边缘，width往圆心算
         draw.arc(circle(self.R+self.edge, self.R+self.edge, self.R), start=0, end=360, fill=self.fill, width = self.border)
 
-
         #绘制多边形
         draw.polygon(pentagram(self.R+self.edge,self.R+self.edge,self.r), fill=self.fill, outline=self.fill)
-
 
         #绘制上圈文字
         angle_word = self.angle_up / len(self.words_up)
@@ -199,14 +255,14 @@ class Stamp:
             angle_word_curr = angle_word_curr + angle_word
 
 
-        #绘制下圈文字
-        angle_word = self.angle_down / len(self.words_down)
-        angle_word_curr = -((len(self.words_down)-1) / 2) * angle_word
-
-        for word in self.words_down:
-            self.draw_rotated_text(img, angle_word_curr, (self.R+self.edge,self.R+self.edge), self.R-self.border*2,
-                                   word, self.fill, self.font_size_down, self.font_xratio_down, self.stroke_width_down, font_flip = True)
-            angle_word_curr = angle_word_curr + angle_word
+        # #绘制下圈文字
+        # angle_word = self.angle_down / len(self.words_down)
+        # angle_word_curr = -((len(self.words_down)-1) / 2) * angle_word
+        #
+        # for word in self.words_down:
+        #     self.draw_rotated_text(img, angle_word_curr, (self.R+self.edge,self.R+self.edge), self.R-self.border*2,
+        #                            word, self.fill, self.font_size_down, self.font_xratio_down, self.stroke_width_down, font_flip = True)
+        #     angle_word_curr = angle_word_curr + angle_word
 
         # 随机圈一部分纹理图
         pos_random = (randint(0,200), randint(0,100))
@@ -225,6 +281,8 @@ class Stamp:
 
     def show_stamp(self):
         if self.img:
+            # self.img.resize((510,300),Image.ANTIALIAS)
+            self.img = self.img.resize((510, 300))
             self.img.show()
 
     def save_stamp(self):
@@ -233,8 +291,27 @@ class Stamp:
 
 
 
+if __name__ == "__main__":
+    # words_up = "深圳市宝安区中医院"
+    # stamp = Stamp(
+    #     words_up=words_up,
+    #     words_mid="电子票据专用章",
+    #     save_path=f"{words_up}.png",
+    # )
 
-stamp = Stamp()
-stamp.draw_stamp()
-stamp.show_stamp()
-stamp.save_stamp()
+    words_up = "财政票据监制"
+    stamp = Stamp(
+        words_up=words_up,
+        words_mid="河北省",
+        words_down="财政部监制",
+        save_path=f"{words_up}.png",
+        angle_up=160,
+        font_size_up=60,
+        font_size_mid=40,
+        font_size_down=40,
+    )
+
+    #stamp.draw_stamp()
+    stamp.draw_title_stamp()
+    stamp.show_stamp()
+    stamp.save_stamp()
