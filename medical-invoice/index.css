@@ -130,7 +130,8 @@ dd {
   background: #fff;
   padding: 10px 24px 30px 30px;
   font-size: 10px;
-  font-family: "宋体";
+  /*font-family: "宋体";*/
+  font-family: "Gill Sans Extrabold", sans-serif;
   margin: 0 auto;
 }
 
@@ -141,7 +142,7 @@ dd {
 }
 
 .invoice-body-up-left {
-  width: 230px;
+  width: 250px;
   height: 100%;
   margin-top: 20px;
 }
