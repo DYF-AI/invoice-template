@@ -2,7 +2,7 @@
 # 方案1：通过django修改html文件
 # 方案2：通过直接修改html文件, 可行但不够优雅
 
-def read_html_file(html_file_path:str, to_replace_dict:dict):
+def change_html_template(html_file_path:str, to_replace_dict:dict):
     # 读入
     f = open(html_file_path, "r", encoding="utf-8")
     # 获取内容
@@ -77,7 +77,7 @@ if __name__ == "__main__":
             "zhenweichayan": f"真伪查验、报销入账反馈，请登录{shengfen}财政电子票据公共服务平台（http:crpj）"
         }
     }
-    str2 = read_html_file(html_file, to_replace_dict=replace_dict)
+    str2 = change_html_template(html_file, to_replace_dict=replace_dict)
     print(f"str2: {str2}")
 
     f = open('../medical-invoice/index_gen.html', 'w', encoding='utf-8')  # f.seek(0)

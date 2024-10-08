@@ -10,7 +10,7 @@ def html2jpg(html_file:str):
 if __name__ == "__main__":
 
     hti.screenshot(
-        html_file='../medical-invoice/index.html', css_file='../medical-invoice/index.css',
+        html_file='../medical-invoice/index_gen.html', css_file='../medical-invoice/index.css',
         save_as='medical_invoice.jpg',
         size=(900, 600)
     )
